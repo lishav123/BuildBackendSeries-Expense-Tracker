@@ -1,1 +1,6 @@
-print("This is the main file")
+from dataclasses import dataclass
+
+@dataclass
+class ExpenseTracker:
+    amount: int
+

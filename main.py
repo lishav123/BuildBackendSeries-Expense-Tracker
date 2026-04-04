@@ -4,3 +4,5 @@ from dataclasses import dataclass
 class ExpenseTracker:
     amount: int
 
+def add_expense(expense: ExpenseTracker):
+    ...

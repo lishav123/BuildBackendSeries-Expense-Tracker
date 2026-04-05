@@ -6,3 +6,7 @@ class ExpenseTracker:
 
 def add_expense(expense: ExpenseTracker):
     ...
+
+'''
+Checking something
+'''

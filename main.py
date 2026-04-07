@@ -20,6 +20,12 @@
 #
 # $ expense-tracker summary --month 8
 # # Total expenses for August: $20
+
+# Here are some additional features that you can add to the application:
+# - Add expense categories and allow users to filter expenses by category.
+# - Allow users to set a budget for each month and show a warning when the user exceeds the budget.
+# - Allow users to export expenses to a CSV file.
+
 import json
 from os import path
 
@@ -33,6 +39,35 @@ class ExpenseTracker:
                 self.data = json.load(f)
         else:
             self.data = []
+            with open("data.json", "w") as f:
+                json.dump(self.data, f, indent=4)
+
+    def update_expense(self, expense_id: int, description: str | None = None, expense: int | None = None):
+        if not self.data:
+            print("No data found to update")
+
+        total_user = len(list(filter(lambda x: x["id"] == expense_id, self.data)))
+
+        if total_user == 0:
+            print(f"No expense found to update with id {expense_id}")
+
+        else:
+            self.data = list(
+                map(
+                    lambda x:
+                    x
+                    if x["id"] != expense_id
+                    else
+                        {
+                            "id": x["id"],
+                            "description": description if description is not None else x["description"],
+                            "expense": expense if expense is not None else x["expense"],
+                            "date": x["date"]
+                        }
+                    , self.data
+                )
+            )
+
             with open("data.json", "w") as f:
                 json.dump(self.data, f, indent=4)
 
@@ -99,6 +134,13 @@ if __name__ == '__main__':
 
     tracker.delete_expense(expense_id=1)
     tracker.delete_expense(expense_id=2)
+
+    tracker.update_expense(expense_id=1, description="Test #1", expense=100)
+    tracker.update_expense(expense_id=2, description="Test #2", expense=200)
+    tracker.update_expense(expense_id=3, description="Test #3 (updated)", expense=300)
+    tracker.update_expense(expense_id=4, description="Test #4 (updated)", expense=400)
+    tracker.update_expense(expense_id=5, description="Test #5 (updated)")
+    tracker.update_expense(expense_id=6, expense=900000)
 
     tracker.display_expenses()
     tracker.summary_expense()

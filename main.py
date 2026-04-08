@@ -71,6 +71,8 @@ class ExpenseTracker:
             with open("data.json", "w") as f:
                 json.dump(self.data, f, indent=4)
 
+            print("Expense updated successfully")
+
     def add_expense(self, description: str, expense: float):
         if self.data == []:
             self.data.append({"id": 0, "description": description, "expense": expense, "date": str(datetime.date(datetime.now()).isoformat())})

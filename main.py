@@ -22,7 +22,6 @@
 # # Total expenses for August: $20
 
 # Here are some additional features that you can add to the application:
-# - Add expense categories and allow users to filter expenses by category.
 # - Allow users to set a budget for each month and show a warning when the user exceeds the budget.
 # - Allow users to export expenses to a CSV file.
 
@@ -42,7 +41,31 @@ class ExpenseTracker:
             with open("data.json", "w") as f:
                 json.dump(self.data, f, indent=4)
 
+        if path.exists("month.json"):
+            with open("month.json", "r") as f:
+                self.budget = json.load(f)
+        else:
+            self.budget = [{"month": i, "budget": 0} for i in range(13)]
+            with open("month.json", "w") as f:
+                json.dump(self.data, f, indent=4)
+
+    def set_budget(self, amt_budget: float, month: int = datetime.now().month):
+        if month not in range(1, 13):
+            print(f"Month {month} is not valid [Between 1 and 12]")
+
+        self.budget = list(map(lambda x: {"month": x["month"], "budget": amt_budget} if x["month"] == month else x, self.budget))
+        with open("month.json", "w") as f:
+            json.dump(self.budget, f, indent=4)
+
+    def _get_budget(self, month: int = datetime.now().month):
+        if month not in range(1, 13):
+            return None
+        return list(filter(lambda x: x["month"] == month, self.budget))[0]
+
     def update_expense(self, expense_id: int, description: str | None = None, expense: int | None = None, category: str | None = None):
+        if self._get_budget() != 0:
+            print(f"Budget for expense {expense_id} is already updated")
+
         if not self.data:
             print("No data found to update")
 
@@ -128,13 +151,23 @@ class ExpenseTracker:
 
 
     def display_expenses(self, month: int | None = None, category: str | None = None):
-        if month not in range(1, 13):
-            print("Invalid Month")
+        if month is None and category is None:
+            print(tabulate(self.data, headers="keys"))
 
-        print(tabulate(
-            list(filter(
-                lambda x: datetime.fromisoformat(x["date"]).month == month
-                , self.data)), headers="keys"))
+        if month is None and category is not None:
+            print(tabulate(list(filter(lambda x: x['category'] == category, self.data)), headers="keys"))
+
+        if month is not None and category is None:
+            if month in range(1, 13):
+                print(tabulate(list(filter(lambda x: datetime.fromisoformat(x['date']).month == month, self.data)), headers="keys"))
+            else:
+                print("Invalid month")
+
+        if month is not None and category is not None:
+            if month in range(1, 13):
+                print(tabulate(list(filter(lambda x: datetime.fromisoformat(x['date']).month == month and x['category'] == category, self.data)), headers="keys"))
+            else:
+                print("Invalid month")
 
 if __name__ == '__main__':
     tracker = ExpenseTracker()
@@ -157,8 +190,9 @@ if __name__ == '__main__':
     tracker.update_expense(expense_id=4, description="Test #4 (updated)", expense=400)
     tracker.update_expense(expense_id=5, description="Test #5 (updated)")
     tracker.update_expense(expense_id=6, expense=900000)
-    tracker.update_expense(expense_id=7, category="payemnt")
+    tracker.update_expense(expense_id=7, category="payment")
 
+    print('---------------')
     tracker.display_expenses()
     tracker.summary_expense()
     tracker.summary_expense(month=2)
@@ -166,3 +200,6 @@ if __name__ == '__main__':
     tracker.summary_expense(month=14)
     tracker.summary_expense(month=-15)
     tracker.summary_expense(month=4, category="payment")
+    tracker.display_expenses(month=4)
+    tracker.display_expenses(category="payment")
+    tracker.display_expenses(category="payment", month=4)

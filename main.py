@@ -22,7 +22,7 @@
 # # Total expenses for August: $20
 
 # Here are some additional features that you can add to the application:
-# - Allow users to set a budget for each month and show a warning when the user exceeds the budget.
+# - TODO: Allow users to set a budget for each month and show a warning when the user exceeds the budget.
 # - Allow users to export expenses to a CSV file.
 
 import json

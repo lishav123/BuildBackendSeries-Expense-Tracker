@@ -22,7 +22,6 @@
 # # Total expenses for August: $20
 
 # Here are some additional features that you can add to the application:
-# - TODO: Allow users to set a budget for each month and show a warning when the user exceeds the budget.
 # - Allow users to export expenses to a CSV file.
 
 import json
@@ -43,30 +42,7 @@ class ExpenseTracker:
             with open("data.json", "w") as f:
                 json.dump(self.data, f, indent=4)
 
-        if path.exists("month.json"):
-            with open("month.json", "r") as f:
-                self.budget = json.load(f)
-        else:
-            self.budget = [{"month": i, "budget": 0} for i in range(13)]
-            with open("month.json", "w") as f:
-                json.dump(self.data, f, indent=4)
-
-    def set_budget(self, amt_budget: float, month: int = datetime.now().month):
-        if month not in range(1, 13):
-            print(f"Month {month} is not valid [Between 1 and 12]")
-
-        self.budget = list(map(lambda x: {"month": x["month"], "budget": amt_budget} if x["month"] == month else x, self.budget))
-        with open("month.json", "w") as f:
-            json.dump(self.budget, f, indent=4)
-
-    def _get_budget(self, month: int = datetime.now().month):
-        if month not in range(1, 13):
-            return None
-        return list(filter(lambda x: x["month"] == month, self.budget))[0]
-
     def update_expense(self, expense_id: int, description: str | None = None, expense: int | None = None, category: str | None = None):
-        if self._get_budget() != 0:
-            print(f"Budget for expense {expense_id} is already updated")
 
         if not self.data:
             print("No data found to update")
@@ -150,6 +126,7 @@ class ExpenseTracker:
                             if datetime.fromisoformat(x["date"]).month == month else 0
                         , list(filter(lambda x: x["category"] == category, self.data)))))
             print(f"Total expense: ${total_expense}")
+            return total_expense
 
 
     def display_expenses(self, month: int | None = None, category: str | None = None):
@@ -170,6 +147,10 @@ class ExpenseTracker:
                 print(tabulate(list(filter(lambda x: datetime.fromisoformat(x['date']).month == month and x['category'] == category, self.data)), headers="keys"))
             else:
                 print("Invalid month")
+
+    def export_csv(self):
+        import pandas as pd
+        pd.DataFrame(self.data).to_csv("data.csv")
 
 if __name__ == '__main__':
     tracker = ExpenseTracker()
@@ -205,5 +186,4 @@ if __name__ == '__main__':
     tracker.display_expenses(month=4)
     tracker.display_expenses(category="payment")
     tracker.display_expenses(category="payment", month=4)
-
-# Todo: Alot left will do it tommorow for sure
+    tracker.export_csv()

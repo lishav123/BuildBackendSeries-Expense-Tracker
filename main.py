@@ -30,8 +30,6 @@ from os import path
 from datetime import datetime
 from tabulate import tabulate
 
-import argparse
-
 class ExpenseTracker:
     def __init__(self):
         if path.exists("data.json"):
